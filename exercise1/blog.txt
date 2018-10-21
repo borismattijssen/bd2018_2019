@@ -1,0 +1,6 @@
+This exercise is delivered in three parts, since multiple Shiny tutorials are related to one "project".
+
+We therefore have:
+- Ex 2 & 3: ./simple-gui.R
+- Ex 4 & 5: ./counties
+- Ex 6 & 7: ./stockVis
