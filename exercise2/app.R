@@ -1,5 +1,7 @@
-source('data_helpers.R')
 source('input_helpers.R')
+source('data_helpers.R')
+source('rain_helpers.R')
+source('prediction_helpers.R')
 source('time_series_helpers.R')
 source('bar_chart_helpers.R')
 source('map_helpers.R')
