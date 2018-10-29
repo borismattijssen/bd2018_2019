@@ -1,0 +1,3 @@
+fetchRainData <- function(daterange){
+  NULL
+}
