@@ -1,5 +1,3 @@
-renderTimeSeriesPlot <- function(data, rain, future){
-    t=seq(0,10,0.1)
-    y=sin(t)
-    plot(t,y,type="l", xlab="time", ylab="Sine wave")
+renderTimeSeriesPlot <- function(data, rain, future ){
+    ggplot(data=rain, aes(x=Date, y=Rain)) +geom_line()
 }

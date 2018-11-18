@@ -14,8 +14,11 @@ ui <- fluidPage(
       helpText('Gain insights in the air quality of Madrid.'),
       selectInput('stations', 'Stations', choices = listOfStations(), selected = listOfStations(), multiple=TRUE),
       selectInput('chemical', 'Chemical', choices = listOfChemicals()),
-      dateRangeInput('date_range', 'Date range', start=startDate(), end=endDate()),
-      checkboxInput('rain', 'Include rainfall', value = FALSE),
+      dateRangeInput("date_range", 
+                     "Date range",
+                     start = "2018-07-01", 
+                     end = as.character(Sys.Date())),
+      checkboxInput('rain', 'Include rainfall', value = TRUE),
       checkboxInput('future', 'Predicut future values', value = FALSE)
     ),
     mainPanel(
@@ -34,13 +37,16 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   data   <- fetchPolutionData(input$stations, input$chemical, input$date_range)
-  rain   <- fetchRainData(input$date_range)
-  future <- predictFuture(data)
+  rain   <- reactive({
+    if(input$rain){return(fetchRainData(input$date_range))}})
   
-  output$plot1 <- renderPlot(renderTimeSeriesPlot(data, rain, future))
+  output$plot1 <- renderPlot(renderTimeSeriesPlot(data, rain(), future))
   output$plot2 <- renderPlot(renderBarChart(data))
   output$map   <- renderLeaflet(renderMap(data))
+
 }
+
 
 # Run the app ----
 shinyApp(ui = ui, server = server)
+
