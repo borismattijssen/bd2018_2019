@@ -12,13 +12,13 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       helpText('Gain insights in the air quality of Madrid.'),
-      selectInput('stations', 'Stations', choices = listOfStations(), selected = c('28079016'), multiple=TRUE),
+      selectInput('stations', 'Stations', choices = listOfStations(), selected = c(), multiple=TRUE),
       selectInput('chemical', 'Chemical', choices = listOfChemicals()),
       dateRangeInput("date_range", 
                      "Date range",
                      start = "2018-07-01", 
                      end = as.character(Sys.Date())),
-      checkboxInput('rain', 'Include rainfall', value = TRUE),
+      checkboxInput('rain', 'Include rainfall', value = FALSE),
       checkboxInput('future', 'Predicut future values', value = FALSE)
     ),
     mainPanel(
