@@ -7,3 +7,5 @@ res <- dbSendQuery(db, query)
 chunks <- dbFetch(res)
 chunks[['DATE(date)']]
 dbClearResult(res)
+
+x <- fetchPollutionData(c('28079016', '28079011'), 'NO', c('2014-12-01', '2015-01-01'))

@@ -1,12 +1,17 @@
 library(DBI)
 
+stations <- NULL
+
 listOfStations <- function(){
-  db <- dbConnect(RSQLite::SQLite(), "data/air_pollution.db")
-  res <- dbSendQuery(db, "SELECT id, name FROM stations ORDER BY name")
-  chunk <- dbFetch(res)
-  dbClearResult(res)
-  dbDisconnect(db)
-  setNames(chunk$id, chunk$name)
+  if(is.null(stations)) {
+    db <- dbConnect(RSQLite::SQLite(), "data/air_pollution.db")
+    res <- dbSendQuery(db, "SELECT id, name FROM stations ORDER BY name")
+    chunk <- dbFetch(res)
+    dbClearResult(res)
+    dbDisconnect(db)
+    stations <- setNames(chunk$id, chunk$name)
+  }
+  stations
 }
 listOfChemicals <- function(){
   db <- dbConnect(RSQLite::SQLite(), "data/air_pollution.db")
