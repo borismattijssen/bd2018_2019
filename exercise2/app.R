@@ -16,8 +16,8 @@ ui <- fluidPage(
       selectInput('chemical', 'Chemical', choices = listOfChemicals()),
       dateRangeInput("date_range", 
                      "Date range",
-                     start = "2018-07-01", 
-                     end = as.character(Sys.Date())),
+                     start = startDate(),
+                     end = endDate()),
       checkboxInput('rain', 'Include rainfall', value = FALSE),
       checkboxInput('future', 'Predicut future values', value = FALSE)
     ),
@@ -41,7 +41,10 @@ server <- function(input, output) {
     fetchPollutionData(input$stations, input$chemical, input$date_range)
   })
   rain   <- reactive({
-    fetchRainData(input$date_range)
+    if(input$rain){ 
+      return(fetchRainData(input$date_range))
+    }
+    return(NULL)
   })
   future <- reactive({
     predictFuture(data())
@@ -52,7 +55,7 @@ server <- function(input, output) {
     fetchDayPollutionData(input$stations, input$chemical, day)
   })
   
-  output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), rain(), future())})
+  output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), rain(), future(), input$chemical)})
   output$plot2 <- renderPlot({renderDayTimeSeriesPlot(day_data())})
   output$map   <- renderLeaflet({renderMap(data())})
 }
