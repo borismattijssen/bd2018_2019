@@ -40,6 +40,8 @@ server <- function(input, output) {
   data   <- reactive({
     fetchPollutionData(input$stations, input$chemical, input$date_range)
   })
+  
+  data_all <- reactive({fetchAllData(input$chemical, input$date_range)})
   rain   <- reactive({
     if(input$rain){ 
       return(fetchRainData(input$date_range))
@@ -57,7 +59,7 @@ server <- function(input, output) {
   
   output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), rain(), future(), input$chemical)})
   output$plot2 <- renderPlot({renderDayTimeSeriesPlot(day_data())})
-  output$map   <- renderLeaflet({renderMap(data())})
+  output$map   <- renderLeaflet({renderMap(data_all(), input$stations, input$chemical)})
 }
 
 

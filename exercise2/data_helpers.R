@@ -1,5 +1,17 @@
 library(DBI)
 
+
+# pollution levels
+# reference https://www.airqualitynow.eu/download/CITEAIR-Comparing_Urban_Air_Quality_across_Borders.pdf
+
+
+NO_2 = c(0, 50, 100, 200, 400, Inf)
+PM10= c(0, 25, 50, 90, 180, Inf)
+O_3 = c(0, 60, 120, 180, 240, Inf)
+SO_2 = c(0, 50, 100, 350, 500, Inf)
+CO = c(0, 5000, 7500, 10000, 12500, Inf)
+pollutionLevels = data.frame(NO_2, PM10, O_3, SO_2, CO)
+
 fetchPollutionData <- function(stations, chemical, daterange) {
   db <- dbConnect(RSQLite::SQLite(), "data/air_pollution.db")
   
@@ -17,7 +29,7 @@ fetchPollutionData <- function(stations, chemical, daterange) {
     result[[station]] <- chunks[[paste('AVG(', chemical, ')', sep="")]]
     dbClearResult(res)
   }
-
+  
   dbDisconnect(db)
   return(result)
 }
@@ -52,7 +64,7 @@ fetchAllData <- function(chemical, daterange) {
   results <- dbFetch(res)
   dbClearResult(res)
   dbDisconnect(db)
-  colnames(results)<-c("station_id", "date", "value")
+  colnames(results)<-c("station_id", "date", "pollution")
   return(results)
 }
 
@@ -86,3 +98,10 @@ calculateSubIndexes<-function(){
   return(df2)
   
 }
+
+stationsGeoData <- function(){
+  
+  return(read.csv("data/stations.csv"))
+}
+
+
