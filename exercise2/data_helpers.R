@@ -45,3 +45,44 @@ fetchDayPollutionData <- function(stations, chemical, day) {
   dbDisconnect(db)
   return(result)
 }
+
+fetchAllData <- function(chemical, daterange) {
+  db <- dbConnect(RSQLite::SQLite(), "data/air_pollution.db")
+  res<-dbSendQuery(db, paste("SELECT station_id, date, ", chemical, " FROM measurements WHERE date BETWEEN '", daterange[1], "' AND '", daterange[2], "'", sep=""))
+  results <- dbFetch(res)
+  dbClearResult(res)
+  dbDisconnect(db)
+  colnames(results)<-c("station_id", "date", "value")
+  return(results)
+}
+
+fetchAllTable <- function() {
+  db <- dbConnect(RSQLite::SQLite(), "data/air_pollution.db")
+  res<-dbSendQuery(db, paste("SELECT * FROM measurements", sep=""))
+  results <- dbFetch(res)
+  dbClearResult(res)
+  dbDisconnect(db)
+  return(results)
+}
+
+calculateSubIndexes<-function(){
+  
+  data_all <- fetchAllData()
+  labels <- factor(c(1,2,3,4,5), ordered = TRUE)
+  
+  df2 = data_all %>%
+    group_by(station_id) %>%
+    mutate(NO_2.ind = cut(NO_2, breaks = c(0, 50, 100, 200, 400, Inf), labels=labels)) %>%
+    mutate(PM10.ind = cut(PM10, breaks = c(0, 25, 50, 90, 180, Inf), labels=labels)) %>%
+    mutate(O_3.ind = cut(O_3, breaks = c(0, 60, 120, 180, 240, Inf), labels=labels)) %>%
+    mutate(CO.ind = cut(CO, breaks = c(0, 5000, 7500, 10000, 12500, Inf), labels=labels)) %>%
+    mutate(SO_2.ind = cut(SO_2, breaks = c(0, 50, 100, 350, 500, Inf), labels=labels)) 
+  
+  # some stuff to calculate CAQI Index
+  # key_pollutants <- c("NO_2.ind", "PM10.ind",  "O_3.ind")
+  # df2$caqi = apply(df2[key_pollutants], 1, function(x) max(x))
+  # final<-merge(data_all, df2[,c("id", "caqi")], by="id" )
+  
+  return(df2)
+  
+}
