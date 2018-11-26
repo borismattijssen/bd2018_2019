@@ -12,14 +12,14 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       helpText('Gain insights in the air quality of Madrid.'),
-      selectInput('stations', 'Stations', choices = listOfStations(), selected = c(), multiple=TRUE),
-      selectInput('chemical', 'Chemical', choices = listOfChemicals()),
+      selectInput('stations', 'Stations', choices = listOfStations(), selected = 1, multiple=TRUE),
+      selectInput('chemical', 'Chemical', choices = pollutants),
       dateRangeInput("date_range", 
                      "Date range",
                      start = startDate(),
                      end = endDate()),
       checkboxInput('rain', 'Include rainfall', value = FALSE),
-      checkboxInput('future', 'Predicut future values', value = FALSE)
+      checkboxInput('wind', 'Include wind', value = FALSE)
     ),
     mainPanel(
       fluidRow(
@@ -42,8 +42,8 @@ server <- function(input, output) {
   })
   
   data_all <- reactive({fetchAllData(input$chemical, input$date_range)})
-  rain   <- reactive({
-    if(input$rain){ 
+  weather   <- reactive({
+    if(input$rain || input$wind){ 
       return(fetchRainData(input$date_range))
     }
     return(NULL)
@@ -57,7 +57,7 @@ server <- function(input, output) {
     fetchDayPollutionData(input$stations, input$chemical, day)
   })
   
-  output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), rain(), future(), input$chemical)})
+  output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), weather(), input$rain, input$wind, future(), input$chemical)})
   output$plot2 <- renderPlot({renderDayTimeSeriesPlot(day_data())})
   output$map   <- renderLeaflet({renderMap(data_all(), input$stations, input$chemical)})
 }

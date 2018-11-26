@@ -1,7 +1,7 @@
 library(reshape2)
 library(scales)
 
-renderTimeSeriesPlot <- function(data, rain, future, chemical){
+renderTimeSeriesPlot <- function(data, weather, isRain, isWind, future, chemical){
   # set plot title
   title <- paste(chemical, " levels",sep="")
   
@@ -9,23 +9,35 @@ renderTimeSeriesPlot <- function(data, rain, future, chemical){
   n <- names(data)
   l <- length(n)
   n[2:l] = stationIdsToNames(n[2:l])
-  print(n)
   data <- setNames(data, n)
   
+  
   # Convert data to rate-of-change data if combined with rain data
-  if(!is.null(rain)) {
-    data$rain = rain$Rain
-    l <- length(data)
-    delta <- diff(as.matrix(data[2:l]))
-    data <- data[-nrow(data),]
-    data[2:l] <- delta / data[2:l]
-    
-    title <- paste("Rate-of-change for ", chemical, " and rainfall", sep="")
+  if(isTRUE(isRain) && isTRUE(isWind)) {
+    data <- left_join(data, weather, c("date", "date"))
   }
+  else if(isTRUE(isRain)){
+    data <- left_join(data, weather[,c("date", "rain")], c("date", "date"))
+  }
+  else if(isTRUE(isWind)){
+    data <- left_join(data, weather[,c("date", "wind")], c("date", "date"))
+    #data$rain = rain$Rain
+  }
+  print(data)
+  
+  l <- length(data)
+  delta <- diff(as.matrix(data[2:l]))
+  data <- data[-nrow(data),]
+  data[2:l] <- delta / data[2:l]
+  # 
+  title <- paste("Rate-of-change for ", chemical, " and rainfall", sep="")
   
   # convert to ggplot consumable data
+  
+  
   data_long <- melt(data, id="date")
   data_long <- setNames(data_long, c('date', 'station', 'value'))
+  print(data_long)
   
   plot <- ggplot(data=data_long, aes(x=date, y=value, colour=station, group=station)) + 
     geom_line() +
@@ -36,8 +48,13 @@ renderTimeSeriesPlot <- function(data, rain, future, chemical){
     ggtitle(title)
   
   # If rain, plot rate-of-change, so plot percentages
-  if(!is.null(rain)) {
-    plot <- plot + scale_y_continuous(labels = percent)
+   if(isTRUE(isRain)) {
+  
+    plot <- plot + scale_y_continuous()
+   }
+  if(isTRUE(isWind)) {
+      
+    plot <- plot + scale_y_continuous()
   }
   
   return(plot)

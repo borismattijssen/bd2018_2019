@@ -16,7 +16,6 @@ renderMap <- function(data, pickedStations, pollutant){
     # https://rud.is/b/2015/07/26/making-staticinteractive-voronoi-map-layers-in-ggplotleaflet/
   stationsInfo <- stationsGeoData()
   pickedStations=as.integer(pickedStations)
-  print(data)
   df <- aggregate(data[,"pollution"], list(data$station_id), mean, na.rm=TRUE)
   # print(df)
   colnames(df)=c("station_id", "mean")
@@ -30,12 +29,9 @@ renderMap <- function(data, pickedStations, pollutant){
   
   stationsInfo<-merge(stationsInfo, df, by.x="id", by.y="station_id")
   
-  print(stationsInfo)
-  
   vor_pts <- SpatialPointsDataFrame(cbind(stationsInfo$lon,
                                           stationsInfo$lat),
                                     stationsInfo, match.ID=TRUE)
-  print(vor_pts)
   picked_pts <- stationsInfo[which(stationsInfo$id %in% pickedStations), c("name","lon", "lat")]
   vor <- SPointsDF_to_voronoi_SPolysDF(vor_pts)
   

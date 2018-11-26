@@ -3,8 +3,8 @@ library(DBI)
 
 # pollution levels
 # reference https://www.airqualitynow.eu/download/CITEAIR-Comparing_Urban_Air_Quality_across_Borders.pdf
-
-
+# the most important pollutants
+pollutants <- c("NO_2", "PM10", "O_3", "SO_2", "CO")
 NO_2 = c(0, 50, 100, 200, 400, Inf)
 PM10= c(0, 25, 50, 90, 180, Inf)
 O_3 = c(0, 60, 120, 180, 240, Inf)
