@@ -1,7 +1,7 @@
 library(weatherData)
 
 # columns from the data for WindSpeedAvgMPH and PrecipitationSumCM (respectively)
-cols<-c(14,16)
+cols<-c(15,16)
 stations_Madrid<- c("IMADRIDV3", "IMADRIDM44")
 
 fetchRainData <- function(date_range){

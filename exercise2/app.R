@@ -23,12 +23,12 @@ ui <- fluidPage(
     ),
     mainPanel(
       fluidRow(
+        leafletOutput("map")
+      ),
+      fluidRow(
         textOutput("selected_var"),
         column(7,plotOutput("plot1", click = "plot_click")),
         column(5,plotOutput("plot2"))
-      ),
-      fluidRow(
-        leafletOutput("map")
       )
     )
   )
@@ -58,7 +58,7 @@ server <- function(input, output) {
   })
   
   output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), weather(), input$rain, input$wind, future(), input$chemical)})
-  output$plot2 <- renderPlot({renderDayTimeSeriesPlot(day_data())})
+  output$plot2 <- renderPlot({renderDayTimeSeriesPlot(day_data(), input$chemical)})
   output$map   <- renderLeaflet({renderMap(data_all(), input$stations, input$chemical)})
 }
 
