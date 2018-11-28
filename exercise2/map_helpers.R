@@ -10,24 +10,15 @@ library(zoo)
 # pollution levels
 # reference https://www.airqualitynow.eu/download/CITEAIR-Comparing_Urban_Air_Quality_across_Borders.pdf
 
-
 renderMap <- function(data, pickedStations, pollutant){
     # we are going to want to use this:
     # https://rud.is/b/2015/07/26/making-staticinteractive-voronoi-map-layers-in-ggplotleaflet/
   stationsInfo <- stationsGeoData()
   pickedStations=as.integer(pickedStations)
   df <- aggregate(data[,"pollution"], list(data$station_id), mean, na.rm=TRUE)
-  # print(df)
-  colnames(df)=c("station_id", "mean")
-  
-  labels <- factor(c(1,2,3,4,5), ordered = TRUE)
-  
-  
-  df = df %>%
-    mutate(subInd = cut(mean, breaks = pollutionLevels[,pollutant], labels = labels))
-  
-  
-  stationsInfo<-merge(stationsInfo, df, by.x="id", by.y="station_id")
+  df$mean <-cut(df$x, breaks=pollutionLevels[,pollutant], labels=pollutionLabels, ordered_result=TRUE)
+  print(df$mean)
+  stationsInfo<-merge(stationsInfo, df, by.x="id", by.y="Group.1")
   
   vor_pts <- SpatialPointsDataFrame(cbind(stationsInfo$lon,
                                           stationsInfo$lat),
@@ -42,12 +33,15 @@ renderMap <- function(data, pickedStations, pollutant){
               "Yellow",
               "Orange",
               "Red")
-  pal <- colorBin(colors, domain = vor$mean, bins = pollutionLevels[,pollutant])
   
-  leaflet(data=picked_pts, width=900, height=650) %>%
+  pal <- colorFactor(colors, domain = vor$mean, ordered=FALSE)
+  print(pal)
+  
+  map<-leaflet(data=picked_pts, width=900, height=650) %>%
     # base map
     addTiles() %>%  # Add default OpenStreetMap map tiles%>%
-    addMarkers(~lon, ~lat) %>%
+    #addPopups(~lon, ~lat, ~name, options = popupOptions(minWidth = 20, closeOnClick = TRUE, closeButton = FALSE))%>%
+
 
     # voronoi (click) layer
     addPolygons(data=vor,
@@ -56,8 +50,15 @@ renderMap <- function(data, pickedStations, pollutant){
                 opacity = 1,
                 color = "white",
                 dashArray = "3",
-                fillOpacity = 0.5
-               )
+                fillOpacity = 0.5) %>%
+  addLegend(pal = pal, values = pollutionLabels, labels = pollutionLabels, title = "Common Air Quality Index")
+
+  if (!is_empty(pickedStations)){
+    
+    map<- map%>%
+      addMarkers(~lon, ~lat, label = ~name, labelOptions = labelOptions(noHide = TRUE, offset=c(0,-12)))
+  }
+  map
   
 }
 

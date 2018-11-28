@@ -47,8 +47,12 @@ renderTimeSeriesPlot <- function(data, weather, isRain, isWind, future, chemical
     ggtitle(title)
   
   # If rain, plot rate-of-change, so plot percentages
+  print(isWind)
   if(isTRUE(isWind)) {
-    weather$wind = weather$wind
+    
+    scale_factor = min(data_long$value, na.rm = TRUE)/max(weather$wind, na.rm = TRUE)
+    weather$wind = weather$wind*scale_factor
+    print(scale_factor)
     data <- left_join(data_long, weather[,c("date", "wind")], c("date", "date"))
     x.end <- data$date + 1
     y.start <- mean(data$wind)
@@ -67,7 +71,8 @@ renderTimeSeriesPlot <- function(data, weather, isRain, isWind, future, chemical
   
    if(isTRUE(isRain)) {
      
-     weather$rain = weather$rain*10
+     scale_factor = min(data_long$value, na.rm = TRUE)/max(weather$rain, na.rm = TRUE)*0.5
+     weather$rain = weather$rain*scale_factor
      data <- left_join(data_long, weather[,c("date", "rain")], c("date", "date"))
      
     plot <- plot + geom_area(data, inherit.aes = FALSE, 
@@ -91,8 +96,14 @@ stationIdsToNames <- function(ids) {
 
 renderDayTimeSeriesPlot <- function(data, chemical) {
   data_long <- melt(data, id="date")
+  # print(data)
+
   ggplot(data=data_long, aes(x=date, y=value, colour=variable, group=1)) + 
     geom_line() + 
+    # geom_rect(inherit.aes = FALSE, data=data, aes(NULL, NULL, 
+    #               xmin=date-1, xmax=date+1, 
+    #               ymin=min(data_long$value), ymax=max(data_long$value), 
+    #               fill=caqi))+
     scale_x_datetime(labels = time_format("%H:%M"))+
     ggtitle(paste("Pollution level of ", chemical, " on ", as.Date(data$date, format("%d:%m:%Y")), sep=""))
 }
