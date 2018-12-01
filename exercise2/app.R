@@ -8,6 +8,9 @@ source('map_helpers.R')
 
 # Define UI ----
 ui <- fluidPage(
+  theme = "tooltip.css",
+  tags$script(src = "tooltip.js"),
+  
   titlePanel('Madrid Air Quality'),
   sidebarLayout(
     sidebarPanel(
@@ -23,12 +26,14 @@ ui <- fluidPage(
       actionButton('load', 'Load')
     ),
     mainPanel(
+      style = "position: inherit",
       fluidRow(
         leafletOutput("map")
       ),
       fluidRow(
         textOutput("selected_var"),
-        column(7,plotOutput("plot1", click = "plot_click")),
+        column(7,plotOutput("plot1", click = "plot_click", hover = hoverOpts("plot_hover", delay = 0))),
+        uiOutput("my_tooltip"),
         column(5,plotOutput("plot2"))
       )
     )
@@ -65,6 +70,14 @@ server <- function(input, output) {
   output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), weather(), rain(), wind(), future(), chemical())})
   output$plot2 <- renderPlot({renderDayTimeSeriesPlot(day_data(), chemical())})
   output$map   <- renderLeaflet({renderMap(data_all(), chemical())})
+  
+  # create tooltip value
+  output$my_tooltip <- renderUI({
+    hover <- input$plot_hover 
+    req(!is.null(hover))
+    format(as.Date(hover$x, origin = "1970-01-01"), format="%Y-%m-%d")
+  })
+
 }
 
 
