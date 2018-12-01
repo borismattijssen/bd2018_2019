@@ -93,9 +93,7 @@ stationIdsToNames <- function(ids) {
 }
 
 renderDayTimeSeriesPlot <- function(data, chemical) {
-  if(is.null(data)) {
-    return(NULL)
-  }
+  if(is.null(data)) return(NULL)
   
   # find station names
   n <- names(data)
@@ -105,9 +103,9 @@ renderDayTimeSeriesPlot <- function(data, chemical) {
   
   # convert to ggplot consumable data
   data_long <- melt(data, id="date")
-
+  
   # plot
-  ggplot(data=data_long, aes(x=date, y=value, colour=variable, group=1)) + 
+  ggplot(data=data_long, aes(x=date, y=value, colour=variable, group=variable)) + 
     geom_line() + 
     # geom_rect(inherit.aes = FALSE, data=data, aes(NULL, NULL, 
     #               xmin=date-1, xmax=date+1, 
