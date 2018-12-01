@@ -47,6 +47,7 @@ fetchDayPollutionData <- function(stations, chemical, day) {
   
   for(station in stations) {
     query <- paste("SELECT ", chemical,  " FROM measurements WHERE station_id = ", station, " AND DATE(date) = '", day, "'", sep="")
+    print(query)
     res <- dbSendQuery(db, query)
     chunks <- dbFetch(res)
     result[[station]] <- chunks[[chemical]]

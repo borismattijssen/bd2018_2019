@@ -10,11 +10,10 @@ library(zoo)
 # pollution levels
 # reference https://www.airqualitynow.eu/download/CITEAIR-Comparing_Urban_Air_Quality_across_Borders.pdf
 
-renderMap <- function(data, pickedStations, pollutant){
+renderMap <- function(data, pollutant){
     # we are going to want to use this:
     # https://rud.is/b/2015/07/26/making-staticinteractive-voronoi-map-layers-in-ggplotleaflet/
   stationsInfo <- stationsGeoData()
-  pickedStations=as.integer(pickedStations)
   df <- aggregate(data[,"pollution"], list(data$station_id), mean, na.rm=TRUE)
   df$mean <-cut(df$x, breaks=pollutionLevels[,pollutant], labels=pollutionLabels, ordered_result=TRUE)
   print(df$mean)
@@ -23,7 +22,7 @@ renderMap <- function(data, pickedStations, pollutant){
   vor_pts <- SpatialPointsDataFrame(cbind(stationsInfo$lon,
                                           stationsInfo$lat),
                                     stationsInfo, match.ID=TRUE)
-  picked_pts <- stationsInfo[which(stationsInfo$id %in% pickedStations), c("name","lon", "lat")]
+  picked_pts <- stationsInfo[, c("name","lon", "lat")]
   vor <- SPointsDF_to_voronoi_SPolysDF(vor_pts)
   
   
@@ -37,10 +36,10 @@ renderMap <- function(data, pickedStations, pollutant){
   pal <- colorFactor(colors, domain = vor$mean, ordered=FALSE)
   print(pal)
   
-  map<-leaflet(data=picked_pts, width=900, height=650) %>%
+  leaflet(data=picked_pts, width=900, height=650) %>%
     # base map
     addTiles() %>%  # Add default OpenStreetMap map tiles%>%
-    #addPopups(~lon, ~lat, ~name, options = popupOptions(minWidth = 20, closeOnClick = TRUE, closeButton = FALSE))%>%
+    addMarkers(~lon, ~lat, label = ~name, popup = ~name) %>%
 
 
     # voronoi (click) layer
@@ -51,15 +50,7 @@ renderMap <- function(data, pickedStations, pollutant){
                 color = "white",
                 dashArray = "3",
                 fillOpacity = 0.5) %>%
-  addLegend(pal = pal, values = pollutionLabels, labels = pollutionLabels, title = "Common Air Quality Index")
-
-  if (!is_empty(pickedStations)){
-    
-    map<- map%>%
-      addMarkers(~lon, ~lat, label = ~name, labelOptions = labelOptions(noHide = TRUE, offset=c(0,-12)))
-  }
-  map
-  
+    addLegend(pal = pal, values = pollutionLabels, labels = pollutionLabels, title = "Common Air Quality Index")
 }
 
 SPointsDF_to_voronoi_SPolysDF <- function(sp) {
