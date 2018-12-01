@@ -95,6 +95,9 @@ stationIdsToNames <- function(ids) {
 }
 
 renderDayTimeSeriesPlot <- function(data, chemical) {
+  if(is.null(data)) {
+    return(NULL)
+  }
   data_long <- melt(data, id="date")
   # print(data)
 
