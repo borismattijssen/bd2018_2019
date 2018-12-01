@@ -41,8 +41,9 @@ server <- function(input, output) {
   data   <- eventReactive(input$load, {
     fetchPollutionData(input$stations, input$chemical, input$date_range)
   })
-  
-  data_all <- eventReactive(input$load, {fetchAllData(input$chemical, input$date_range)})
+  data_all <- eventReactive(input$load, {
+    fetchAllData(input$chemical, input$date_range)
+  })
   weather   <- eventReactive(input$load, {
     if(input$rain || input$wind){ 
       return(fetchRainData(input$date_range))
@@ -52,20 +53,18 @@ server <- function(input, output) {
   future <- eventReactive(input$load, {
     predictFuture(data())
   })
-  
-  day_data <- reactive({
-    if(input$load == 1) {
-      day <- as.Date(input$date_range[1])
-      if(!is.null(input$plot_click)) {
-        day <- as.Date(input$plot_click$x, origin = "1970-01-01")
-      }
-      fetchDayPollutionData(input$stations, input$chemical, day)
-    }
+  day_data <- eventReactive(input$plot_click, {
+    day <- as.Date(input$plot_click$x, origin = "1970-01-01")
+    fetchDayPollutionData(input$stations, input$chemical, day)
   })
   
-  output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), weather(), input$rain, input$wind, future(), input$chemical)})
-  output$plot2 <- renderPlot({renderDayTimeSeriesPlot(day_data(), input$chemical)})
-  output$map   <- renderLeaflet({renderMap(data_all(), input$stations, input$chemical)})
+  chemical <- eventReactive(input$load, {input$chemical})
+  rain <- eventReactive(input$load, {input$rain})
+  wind <- eventReactive(input$load, {input$wind})
+  
+  output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), weather(), rain(), wind(), future(), chemical())})
+  output$plot2 <- renderPlot({renderDayTimeSeriesPlot(day_data(), chemical())})
+  output$map   <- renderLeaflet({renderMap(data_all(), chemical())})
 }
 
 

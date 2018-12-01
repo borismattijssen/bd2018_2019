@@ -30,8 +30,6 @@ renderTimeSeriesPlot <- function(data, weather, isRain, isWind, future, chemical
   # 
   
   # convert to ggplot consumable data
-  
-  
   data_long <- melt(data, id="date")
   data_long <- setNames(data_long, c('date', 'station', 'value'))
   
@@ -98,15 +96,27 @@ renderDayTimeSeriesPlot <- function(data, chemical) {
   if(is.null(data)) {
     return(NULL)
   }
+  
+  # find station names
+  n <- names(data)
+  l <- length(n)
+  n[2:l] = stationIdsToNames(n[2:l])
+  data <- setNames(data, n)
+  
+  # convert to ggplot consumable data
   data_long <- melt(data, id="date")
-  # print(data)
 
+  # plot
   ggplot(data=data_long, aes(x=date, y=value, colour=variable, group=1)) + 
     geom_line() + 
     # geom_rect(inherit.aes = FALSE, data=data, aes(NULL, NULL, 
     #               xmin=date-1, xmax=date+1, 
     #               ymin=min(data_long$value), ymax=max(data_long$value), 
     #               fill=caqi))+
+    xlab('Time') + 
+    ylab(chemical) + 
+    theme_minimal() +
+    theme(legend.justification = c(0, 1), legend.position = c(0, 1)) +
     scale_x_datetime(labels = time_format("%H:%M"))+
     ggtitle(paste("Pollution level of ", chemical, " on ", as.Date(data$date, format("%d:%m:%Y")), sep=""))
 }
