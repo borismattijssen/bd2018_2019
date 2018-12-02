@@ -1,7 +1,7 @@
 library(reshape2)
 library(scales)
 
-renderTimeSeriesPlot <- function(data, weather, isRain, isWind, future, chemical){
+renderTimeSeriesPlot <- function(data, weather, isRain, isWind, future, chemical, ranges){
   # set plot title
   title <- paste(chemical, " levels",sep="")
   
@@ -42,6 +42,7 @@ renderTimeSeriesPlot <- function(data, weather, isRain, isWind, future, chemical
     theme_minimal() +
     theme(legend.justification = c(0, 1), legend.position = c(0, 1)) +
     scale_x_date(date_minor_breaks = "1 day") +
+    coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE) + 
     ggtitle(title)
   
   # If rain, plot rate-of-change, so plot percentages

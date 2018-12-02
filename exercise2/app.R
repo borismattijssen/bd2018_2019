@@ -32,7 +32,17 @@ ui <- fluidPage(
       ),
       fluidRow(
         textOutput("selected_var"),
-        column(7,plotOutput("plot1", click = "plot_click", hover = hoverOpts("plot_hover", delay = 0))),
+        column(7,plotOutput("plot1", 
+                            click = "plot_click", 
+                            hover = hoverOpts("plot_hover", delay = 0),
+                            dblclick = "plot1_dblclick",
+                            brush = brushOpts(
+                              id = "plot1_brush",
+                              resetOnNew = TRUE,
+                              delay = 100,
+                              direction = "x"
+                            )
+                            )),
         uiOutput("my_tooltip"),
         column(5,plotOutput("plot2"))
       )
@@ -67,7 +77,9 @@ server <- function(input, output) {
   rain <- eventReactive(input$load, {input$rain})
   wind <- eventReactive(input$load, {input$wind})
   
-  output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), weather(), rain(), wind(), future(), chemical())})
+  ranges <- reactiveValues(x = NULL, y = NULL)
+  
+  output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), weather(), rain(), wind(), future(), chemical(), ranges)})
   output$plot2 <- renderPlot({renderDayTimeSeriesPlot(day_data(), chemical())})
   output$map   <- renderLeaflet({renderMap(data_all(), chemical())})
   
@@ -76,6 +88,19 @@ server <- function(input, output) {
     hover <- input$plot_hover 
     req(!is.null(hover))
     format(as.Date(hover$x, origin = "1970-01-01"), format="%Y-%m-%d")
+  })
+  
+  observeEvent(input$plot1_dblclick, {
+      ranges$x <- NULL
+      ranges$y <- NULL
+  })
+      
+  observeEvent(input$plot1_brush, {
+    brush <- input$plot1_brush
+    xmin <- as.Date(brush$xmin, origin = "1970-01-01")
+    xmax <- as.Date(brush$xmax, origin = "1970-01-01")
+    ranges$x <- c(xmin, xmax)
+    #ranges$y <- c(brush$ymin, brush$ymax)
   })
 
 }
