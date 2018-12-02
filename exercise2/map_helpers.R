@@ -16,7 +16,6 @@ renderMap <- function(data, pollutant){
   stationsInfo <- stationsGeoData()
   df <- aggregate(data[,"pollution"], list(data$station_id), mean, na.rm=TRUE)
   df$mean <-cut(df$x, breaks=pollutionLevels[,pollutant], labels=pollutionLabels, ordered_result=TRUE)
-  print(df$mean)
   stationsInfo<-merge(stationsInfo, df, by.x="id", by.y="Group.1")
   
   vor_pts <- SpatialPointsDataFrame(cbind(stationsInfo$lon,
@@ -33,10 +32,10 @@ renderMap <- function(data, pollutant){
               "Orange",
               "Red")
   
-  pal <- colorFactor(colors, domain = vor$mean, ordered=FALSE)
+  pal <- colorFactor(colors, domain = vor$mean, ordered=TRUE)
   print(pal)
   
-  leaflet(data=picked_pts, width=900, height=650) %>%
+  leaflet(data=picked_pts, width=300, height=350) %>%
     # base map
     addTiles() %>%  # Add default OpenStreetMap map tiles%>%
     addMarkers(~lon, ~lat, label = ~name, popup = ~name) %>%
@@ -50,7 +49,7 @@ renderMap <- function(data, pollutant){
                 color = "white",
                 dashArray = "3",
                 fillOpacity = 0.5) %>%
-    addLegend(pal = pal, values = pollutionLabels, labels = pollutionLabels, title = "Common Air Quality Index")
+    addLegend(pal = pal, values = pollutionLabels, labels = pollutionLabels, title = paste("Common Air Quality Subindex for ", pollutant))
 }
 
 SPointsDF_to_voronoi_SPolysDF <- function(sp) {
