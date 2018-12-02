@@ -1,0 +1,5 @@
+#my_tooltip {
+	position: absolute;
+	width: 300px;
+	z-index: 100;
+}
