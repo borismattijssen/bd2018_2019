@@ -11,21 +11,25 @@ ui <- fluidPage(
   theme = "tooltip.css",
   tags$script(src = "tooltip.js"),
   
-  titlePanel('Madrid Air Quality'),
+  titlePanel('Shiny Madrid'),
   sidebarLayout(
     sidebarPanel(
-      helpText('Gain insights in the air quality of Madrid.'),
-      selectInput('stations', 'Stations', choices = listOfStations(), selected = c('28079016'), multiple=TRUE),
+      width=3,
+      helpText('Select a chemical and date range to plot the map.'),
       selectInput('chemical', 'Chemical', choices = pollutants),
       dateRangeInput("date_range", 
                      "Date range",
                      start = startDate(),
                      end = endDate()),
+      hr(),
+      helpText('Additionally, select a station and weather options for the time series plot.'),
+      selectInput('stations', 'Stations', choices = listOfStations(), selected = c('28079016'), multiple=TRUE),
       checkboxInput('rain', 'Include rainfall', value = FALSE),
       checkboxInput('wind', 'Include wind', value = FALSE),
       actionButton('load', 'Load')
     ),
     mainPanel(
+      width = 9,
       style = "position: inherit",
       fluidRow(
         leafletOutput("map")
