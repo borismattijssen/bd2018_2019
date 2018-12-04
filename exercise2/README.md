@@ -4,7 +4,7 @@ Shiny Madrid is an application that provides visual insights in the airpollution
 
 ## How to use Shiny Madrid?
 
-![Shiny App][img/app.png]
+![Shiny App](https://github.com/borismattijssen/bd2018_2019/raw/master/exercise2/img/app.png)
 
 1. This panel is used to set filters for the application.
 2. This map shows the Air Quality Subindex for the selected chemical, averaged over the given time range.
