@@ -1,7 +1,7 @@
 library(reshape2)
 library(scales)
 
-renderTimeSeriesPlot <- function(data, weather, isRain, isWind, future, chemical, ranges){
+renderTimeSeriesPlot <- function(data, weather, isRain, isWind, future, chemical, isTrendline, ranges){
   # set plot title
   title <- paste(chemical, " levels",sep="")
   
@@ -44,6 +44,10 @@ renderTimeSeriesPlot <- function(data, weather, isRain, isWind, future, chemical
     scale_x_date(date_minor_breaks = "1 day") +
     coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE) + 
     ggtitle(title)
+  
+  if(isTRUE(isTrendline)) {
+    plot <- plot + geom_smooth(method = "lm")
+  }
   
   # If rain, plot rate-of-change, so plot percentages
   print(isWind)

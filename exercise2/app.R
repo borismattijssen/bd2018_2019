@@ -26,6 +26,7 @@ ui <- fluidPage(
       selectInput('stations', 'Stations', choices = listOfStations(), selected = c('28079016'), multiple=TRUE),
       checkboxInput('rain', 'Include rainfall', value = FALSE),
       checkboxInput('wind', 'Include wind', value = FALSE),
+      checkboxInput('trendline', 'Show trendline', value = FALSE),
       actionButton('load', 'Load')
     ),
     mainPanel(
@@ -80,10 +81,11 @@ server <- function(input, output) {
   chemical <- eventReactive(input$load, {input$chemical})
   rain <- eventReactive(input$load, {input$rain})
   wind <- eventReactive(input$load, {input$wind})
+  trendline <- eventReactive(input$load, {input$trendline})
   
   ranges <- reactiveValues(x = NULL, y = NULL)
   
-  output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), weather(), rain(), wind(), future(), chemical(), ranges)})
+  output$plot1 <- renderPlot({renderTimeSeriesPlot(data(), weather(), rain(), wind(), future(), chemical(), trendline(), ranges)})
   output$plot2 <- renderPlot({renderDayTimeSeriesPlot(day_data(), chemical())})
   output$map   <- renderLeaflet({renderMap(data_all(), chemical())})
   

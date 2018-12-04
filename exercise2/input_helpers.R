@@ -21,8 +21,8 @@ listOfChemicals <- function(){
 }
 startDate <- function(){
   #as.Date('2001-01-01 01:00:00')
-  as.Date('2014-12-01 01:00:00')
+  as.Date('2018-03-01 01:00:00')
 }
 endDate <- function(){
-  as.Date('2015-01-01 00:00:00')
+  as.Date('2018-04-29 00:00:00')
 }
